@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Document</title> 
+</head>
+<body>
+     <script type = "module">
+        const {createApp} = Vue
+        const myApp = createApp({
+            data(){
+                return {
+                    message: "About Me",
+                    name: "Youwin",
+                    fave_color: "green",
+                    age: 21,
+
+                    fave_book1: "We'll Share a Double Funeral",
+                    author_book1: "James Hadley Chase",
+                    genre_book1: "Crime, thriller, and mystery",
+                    year_book1: "1982",
+
+                    fave_book2: "Honour Thyself",
+                    author_book2: "Danielle Steele",
+                    genre_book2: "Romance, contemporary fiction, and drama",
+                    year_book2: "2008",
+
+                    fave_book3: "The Chocolate Touch",
+                    author_book3: "Patrick Skene Catling",
+                    genre_book3: "Children's literature, fiction, humour",
+                    year_book3: "1952",
+
+                    fave_book4: "Cool",
+                    author_book4: "Michael Morpurgo",
+                    genre_book4: "Children's fiction, juvenile literature, and contemporary realistic fiction",
+                    year_book4: "2002",
+
+                    fave_book5: "The Holiday Home", 
+                    author_book5: "Fern Britton",
+                    genre_book5: "Contemporary fiction, and adult and contemporary romance",
+                    year_book5: "2013",
+
+                    animal: {
+                        name:"squirrel",
+                        image:"images/squirrel.jpg",
+                        alt: "A grey squirrel"
+                    }    
+                }
+            }
+        })
+        myApp.mount('#app')
+    </script>
+
+<div id= 'app'>
+    <h1 v-text = "message"></h1>
+
+    <h2 v-text = "name"></h2>
+
+    <!-- Description about me -->
+    <p>  I am {{age}} years old. My favourite colour is <span v-bind:style = "{color: fave_color}">{{fave_color}} </span>. </p>
+    <p> My favourite animal is a {{animal.name}}. Below is a picture:</p>
+
+    <!-- Photo of a squirrel -->
+    <img v-bind:src="animal.image" v-bind:alt="animal.alt" width =300>
+
+    <!-- BONUS TASK 2 -->
+    <!-- List of each book -->
+    <p><br>Here are my favourite books:<br><br></p>
+    <p>title: "{{fave_book1}}", author: "{{author_book1}}", genre:"{{genre_book1}}", year: "{{year_book1}}"</p>
+    <p><br>title: "{{fave_book2}}", author: "{{author_book2}}", genre:"{{genre_book2}}", year: "{{year_book2}}"</p>
+    <p><br>title: "{{fave_book3}}", author: "{{author_book3}}", genre:"{{genre_book3}}", year: "{{year_book3}}"</p>
+    <p><br>title: "{{fave_book4}}", author: "{{author_book4}}", genre:"{{genre_book4}}", year: "{{year_book4}}"</p>
+    <p><br>title: "{{fave_book5}}", author: "{{author_book5}}", genre:"{{genre_book5}}", year: "{{year_book5}}"</p>
+
+</div>
+</body>
+</html>
+
+<!-- I have used ChatGPT to discover how to add space between paragraphs using <br>. -->
