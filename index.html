@@ -3,24 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <title>Document</title>
 </head>
 <body>
-    <h1>My Todo List</h1>
-    <input type="text" id="newTask">
-    <input type="button" value="add" id="addButton">
-    <ul id="taskList"></ul>
+    <script type="module">
+        const {createApp} = Vue
+        const afterSchoolLesson = createApp({
+            data(){
+                return{
+                    sitename: "Vue.js After-School Lesson",
+                    product: {
+                        id: 1001,
+                        subject: "Computer Science",
+                        location: "Location: Hendon",
+                        price: 50,
+                        image: "images/ComputerScience.jpg"
+                    }
+                }
+            }
+        })
+        afterSchoolLesson.mount('#app')
+    </script>
 
-    <script>
-        let addButton = document.getElementById("addButton");
-        let taskList = document.getElementById("taskList");
-        addButton.onclick = function() {               
-            let taskField = document.getElementById("newTask");
-            let taskItem = document.createElement("li");
-            taskItem.innerText = taskField.value;
-            taskList.appendChild(taskItem);
-            taskField.value = "";
-        }
-    </script>  
+<div id="app">
+    <h1 v-text = "sitename"></h1>
+
+    <figure>
+        <img v-bind:src="product.image" width = 300>
+    </figure>
+    <h2 v-text="product.subject"></h2>
+    <p v-text="product.location"></p>
+    <p>Price: £{{product.price}}</p>
+</div>
+
 </body>
 </html>
