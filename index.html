@@ -7,6 +7,10 @@
     <title>Document</title>
 </head>
 <body>
+    <div id="div1">
+        <button v-on:click="addToCart()" v-show="canAddToCart">Add to cart</button>        
+    </div>
+
     <script type="module">
         const {createApp} = Vue
         const afterSchoolLesson = createApp({
@@ -14,15 +18,35 @@
                 return{
                     sitename: "Vue.js After-School Lesson",
                     product: {
-                        id: 1001,
+                        id: 1001, // Lesson ID.
                         subject: "Computer Science",
                         location: "Location: Hendon",
                         price: 50,
-                        image: "images/ComputerScience.jpg"
+                        image: "images/ComputerScience.jpg",
+                        availableSlot: 5 // This availability field tracks available slots for purchase.
+                    },
+                    cart:[], // Stores lesson ID to the basket.
+                }
+            },
+                methods:{
+                    addToCart(){ 
+                        this.sitename = "test";
+                        this.cart.push(this.product.id); // Pushes a copy of the lesson ID to the cart.
+                    },
+                    availableSlot() {
+                        this.availableSlot = this.availableSlot - 1; // Reduces lesson availability by 1.
+                    }
+                },
+                computed:{
+                    cartItemCount:function() {
+                        return this.cart.length;
+                    },
+                    canAddToCart:function() {
+                        return this.availableSlot > 0;
                     }
                 }
-            }
-        })
+            })
+        
         afterSchoolLesson.mount('#app')
     </script>
 
