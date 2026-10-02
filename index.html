@@ -7,17 +7,49 @@
     <title>Document</title>
 </head>
 <body>
-    <div id="div1">
-        <button v-on:click="addToCart()" v-show="canAddToCart">Add to cart</button>        
+    <div id="div1"></div>
+
+<div id="app">
+    <button v-on:click="addToCart()" v-show="canAddToCart">Add to cart</button>    
+    
+    <!-- Checkout button displays the number of items in the cart. -->       
+    <button @click="toggleCart" :disabled="cart.length === 0"> 
+        <i class="fa fa-shopping-cart" aria-hidden="true"></i>Checkout ({{cartItemCount}})
+    </button>
+
+    <div v-if='!displayCart'> <!-- When displayCart is false, the lesson information is displayed. -->
+        <!-- Lesson information -->
+        <h2>{{ product.subject }}</h2>
+        <p>{{ product.location }}</p>
+        <p>Price: £{{ product.price }}</p>
     </div>
 
-    <script type="module">
+    <div v-else>
+        <p>Checkout</p> <!-- When displayCart is true, "Checkout" appears instead. -->
+    </div>
+
+    <h1 v-text = "sitename"></h1>
+
+    <figure>
+        <img v-bind:src="product.image" width = 300>
+    </figure>
+    <h2 v-text="product.subject"></h2>
+    <p v-text="product.location"></p>
+    
+    <!-- Price of product. -->
+    <p>Price: £{{product.price}}</p>
+    <!-- Number of items added to the cart. -->
+    <p>Items:{{ numberOfItems}}</p>
+</div>
+
+<script type="module">
         const {createApp} = Vue
         const afterSchoolLesson = createApp({
             data(){
                 return{
+                    showProduct:true, 
                     sitename: "Vue.js After-School Lesson",
-                    product: {
+                    product: { // Product is the lesson.
                         id: 1001, // Lesson ID.
                         subject: "Computer Science",
                         location: "Location: Hendon",
@@ -26,40 +58,55 @@
                         availableSlot: 5 // This availability field tracks available slots for purchase.
                     },
                     cart:[], // Stores lesson ID to the basket.
+                    displayCart: false
                 }
             },
                 methods:{
                     addToCart(){ 
                         this.sitename = "test";
                         this.cart.push(this.product.id); // Pushes a copy of the lesson ID to the cart.
+                        this.decreaseSlot(); // Available slots decrease by 1.
                     },
-                    availableSlot() {
+                    decreaseSlot() {
                         this.availableSlot = this.availableSlot - 1; // Reduces lesson availability by 1.
+                    },
+                    showCheckout(){
+                        this.showProduct = this.showProduct ? false : true;
+                    },
+                    toggleCart() {
+                        this.displayCart = !this.displayCart // Toggle the value of display cart.
                     }
                 },
+
                 computed:{
                     cartItemCount:function() {
                         return this.cart.length;
                     },
+                    // Add number of items to the cart.
                     canAddToCart:function() {
-                        return this.availableSlot > 0;
-                    }
+                        return this.product.availableSlot > 0;
+                    },
+                    // Receives added items to the cart.
+                    numberOfItems:function() {
+                        return this.cart.length;
+                    }         
                 }
             })
-        
         afterSchoolLesson.mount('#app')
+    
     </script>
-
-<div id="app">
-    <h1 v-text = "sitename"></h1>
-
-    <figure>
-        <img v-bind:src="product.image" width = 300>
-    </figure>
-    <h2 v-text="product.subject"></h2>
-    <p v-text="product.location"></p>
-    <p>Price: £{{product.price}}</p>
-</div>
-
 </body>
 </html>
+
+<!-- I have used ChatGPT to help me with the following questions in Task 5:
+ 
+- Add a ‘Checkout’ button that displays the number of items in the cart.
+- Create a new Boolean data variable called ‘displayCart’, set to false.
+- By adding an appropriate method, make it so that the ‘Checkout’ toggles the value of
+displayCart.
+- Using v-if and v-else, edit your html so that the lesson information is only displayed
+when ‘displayCart’ is false, and otherwise a placeholder “checkout”appears.
+- Edit the ‘displayCart’ button so that it is only enabled when there is at least one item in the
+cart. -->
+
+
