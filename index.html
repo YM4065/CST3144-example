@@ -3,97 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="lessons.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>After-School Lessons</title>
 </head>
 <body>
-    <div id="div1"></div>
-
+    
 <div id="app">
-
-    <!-- Add items to cart. -->
-    <button v-on:click="addToCart()" :disabled="!canAddToCart">Add to cart</button>    
-    
-    <!-- Checkout button displays the number of items in the cart. -->       
-    <button @click="toggleCart" :disabled="cart.length === 0"> 
-        <i class="fa fa-shopping-cart" aria-hidden="true"></i>Checkout ({{cartItemCount}})
-    </button>
-
-    <div v-if='!displayCart'> <!-- When displayCart is false, the lesson information is displayed. -->
-        <!-- Lesson page. -->
+    <div v-if="showLesson">
         <h1 v-text = "sitename"></h1>
-
-        <figure>
-            <img v-bind:src="product.image" width = 300>
-        </figure>
-
-        <h2 v-text="product.subject"></h2>
-        <p v-text="product.location"></p>
         
-        <!-- Price of product. -->
-        <p>Price: £{{product.price}}</p>
-        <!-- Number of items added to the cart. -->
-        <p>Items: {{ numberOfItems}}</p>
-        <!-- How many spaces are left. -->
-        <p>Spaces: {{ product.availableSlot }}</p>
+        <!-- Checkout button displays the number of lessons in the cart. -->       
+    <button @click="toggleCheckout">
+        <i class="fa fa-shopping-cart" aria-hidden="true"></i> 
+         Checkout ({{ cart.length }})
+    </button>
+ 
+    <!-- Lesson information-->
+    <div v-for="lesson in lessons" :key="lesson.id">
+            
+            <figure>
+                <img :src="lesson.image" width ="300" :alt="lesson.subject">
+            </figure>
+
+            <h2 v-text="lesson.subject"></h2>
+            <p v-text="lesson.location"></p>
+            <p>Price: £{{lesson.price}}</p>
+            <p>{{lesson.availableSlot}} available.</p>
+
+            <!-- Add to Cart button -->
+            <button @click="addToCart(lesson)" :disabled="!canAddToCart(lesson)">
+                Add To Cart
+            </button>
+     
     </div>
-    
-    <div v-else>
-        <!-- Shopping cart page. -->
-        <h2>Shopping Cart</h2> <!-- When displayCart is true, "Shopping cart" appears instead. -->
-        <p>Items in cart: {{ cartItemCount }}</p> <!-- Displays number of items in the cart. -->
-    </div>
+    </div>  
+
+        <div v-else>
+            <h1>Checkout Page</h1>
+
+            <p>Lessons in cart: {{ cart.length }}</p>
+
+            <button @click="toggleCheckout"> Return to store </button>
+        </div>
+</div>
 
 <script type="module">
-        const {createApp} = Vue
+        const {createApp} = Vue;
         const afterSchoolLesson = createApp({
             data(){
                 return{
-                    showProduct:true, 
-                    sitename: "Vue.js After-School Lesson",
-                    product: { // Product is the lesson.
-                        id: 1001, // Lesson ID.
-                        subject: "Computer Science",
-                        location: "Location: Hendon",
-                        price: 50,
-                        image: "images/ComputerScience.jpg",
-                        availableSlot: 5 // This availability field tracks available slots for purchase.
-                    },
-                    cart:[], // Stores lesson ID to the basket.
-                    displayCart: false
-                }
+                    showLesson: true, 
+                    sitename: "Vue.js After-School Lessons",
+                    lessons: lessonsArray,
+                    cart: [],
+                    firstName:"",
+                    lastName:"",
+                    phoneNumber: ""
+                };
             },
+
                 methods:{
-                    addToCart(){  
-                        this.cart.push(this.product.id); // Pushes a copy of the lesson ID to the cart.
-                        this.decreaseSlot(); // Available slots decrease by 1.
-                    },
-                    decreaseSlot() {
-                        this.product.availableSlot = this.product.availableSlot - 1; // Reduces lesson availability by 1.
-                    },
-                    showCheckout(){
-                        this.showProduct = this.showProduct ? false : true;
-                    },
-                    toggleCart() {
-                        this.displayCart = !this.displayCart // Toggle the value of display cart.
+
+                    // Add a lesson ID to the cart and reduce availability
+                    addToCart(lesson){  
+                        if (this.canAddToCart(lesson)) {
+                            this.cart.push(lesson.id); // Pushes a copy of the lesson ID to the cart.
+                            lesson.availableSlot--;
                     }
-                },
-                computed:{
-                    cartItemCount:function() {
-                        return this.cart.length;
                     },
-                    // Add number of items to the cart.
-                    canAddToCart:function() {
-                        return this.product.availableSlot > 0;
+
+                    //showCheckout(){
+                        //this.showProduct = this.showProduct ? false : true;
+                    //},
+
+                    toggleCheckout() {
+                        this.showLesson = !this.showLesson; // Toggle the value of display cart.
                     },
-                    // Receives added items to the cart.
-                    numberOfItems:function() {
-                        return this.cart.length;
-                    }         
+
+                    // Count lessons
+                    cartLessonCount(id) {
+                        return this.cart.filter(item => item === id).length;
+                    },
+
+                    // Check availiblity
+                    canAddToCart(lesson) {
+                    return lesson.availableSlot > 0;
+                    }
                 }
-            })
-        afterSchoolLesson.mount('#app')
+            });
+        afterSchoolLesson.mount('#app');
 </script>
+
 </body>
 </html>
 
