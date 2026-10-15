@@ -38,47 +38,86 @@
             <button @click="addToCart(lesson)" :disabled="!canAddToCart(lesson)">
                 Add To Cart
             </button>
-     
     </div>
-    </div>  
+      
+    <p>Lessons in cart: {{ cart.length }}</p>
+</div>
 
+        <!-- Checkout page -->
         <div v-else>
             <h1>Checkout Page</h1>
-
-            <p>Lessons in cart: {{ cart.length }}</p>
-
             <button @click="toggleCheckout"> Return to store </button>
+
+            <!-- User details -->
+            <p>First Name: <input v-model="order.firstName"></p>
+            <p>Last Name: <input v-model="order.lastName"></p>
+            <p>Phone Number: <input v-model="order.phoneNumber"></p>
+            
+
+            <!-- Summary-->
+            <h2><br/>Summary</h2>
+            <p>Full Name: {{fullName}}</p>
+            <p>Phone Number: {{phoneNumber}}</p>
+
+            <!-- Checkout button-->
+            <button @click="submitOrder" :disabled="!isOrderValid">
+                Checkout
+            </button>
         </div>
-</div>
+    </div>
 
 <script type="module">
         const {createApp} = Vue;
         const afterSchoolLesson = createApp({
             data(){
                 return{
-                    showLesson: true, 
+                    showLesson: true, // displays the lesson store. 
                     sitename: "Vue.js After-School Lessons",
                     lessons: lessonsArray,
                     cart: [],
-                    firstName:"",
-                    lastName:"",
-                    phoneNumber: ""
-                };
+
+                    // Order item object
+                    order: {
+                        firstName:"",
+                        lastName:"",
+                        phoneNumber: ""
+                    }
+                }
+            },
+
+            computed: {
+                fullName(){
+                    return this.order.firstName + " " + this.order.lastName;
+                },
+                phoneNumber(){
+                    return this.order.phoneNumber;
+                },
+
+                // Order validation
+                isOrderValid() {
+                    return this.order.firstName.trim() !== "" &&
+                    this.order.lastName.trim() !== "" &&
+                    this.order.phoneNumber.trim() !== "";
+                }
             },
 
                 methods:{
-
                     // Add a lesson ID to the cart and reduce availability
                     addToCart(lesson){  
-                        if (this.canAddToCart(lesson)) {
-                            this.cart.push(lesson.id); // Pushes a copy of the lesson ID to the cart.
-                            lesson.availableSlot--;
-                    }
+                        this.cart.push(lesson.id); // Pushes a copy of the lesson ID to the cart.            
                     },
-
-                    //showCheckout(){
-                        //this.showProduct = this.showProduct ? false : true;
-                    //},
+                    
+                    // Complete order
+                    submitOrder() {
+                        alert("Your order has been confirmed!");
+                        
+                        // Reset application after successful checkout
+                        this.cart = []; // clears all items from the cart.
+                        this.order.firstName = "";
+                        this.order.lastName = "";
+                        this.order.phoneNumber = "";
+                        this.showLesson = true;
+                    },
 
                     toggleCheckout() {
                         this.showLesson = !this.showLesson; // Toggle the value of display cart.
@@ -94,6 +133,7 @@
                     return lesson.availableSlot > 0;
                     }
                 }
+            
             });
         afterSchoolLesson.mount('#app');
 </script>
