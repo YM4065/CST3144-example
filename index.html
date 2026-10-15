@@ -54,10 +54,27 @@
             <p>Phone Number: <input v-model="order.phoneNumber"></p>
             
 
-            <!-- Summary-->
-            <h2><br/>Summary</h2>
+            <!-- Order summary-->
+            <h2><br/>Order Summary</h2>
             <p>Full Name: {{fullName}}</p>
             <p>Phone Number: {{phoneNumber}}</p>
+
+            <!-- Summary of lessons in the cart -->
+            <h3>Lessons in Your Cart</h3>
+
+            <template v-for="lesson in lessons" :key="lesson.id">
+                <div  v-if="cartLessonCount(lesson.id) > 0"> <!-- ensures that only lessons the cart are shown -->
+            <p>
+                {{ lesson.subject }} -
+                Quantity: {{ cartLessonCount(lesson.id) }} <!-- displays the quantity -->
+            
+                <!-- Remove button -->
+                <button @click="removeFromCart(lesson)">
+                Remove
+                </button>
+            </p>
+        </div>
+         </template>
 
             <!-- Checkout button-->
             <button @click="submitOrder" :disabled="!isOrderValid">
@@ -104,7 +121,10 @@
                 methods:{
                     // Add a lesson ID to the cart and reduce availability
                     addToCart(lesson){  
+                        if (lesson.availableSlot > 0) {
                         this.cart.push(lesson.id); // Pushes a copy of the lesson ID to the cart.            
+                        lesson.availableSlot--;
+                        }
                     },
                     
                     // Complete order
@@ -131,9 +151,18 @@
                     // Check availiblity
                     canAddToCart(lesson) {
                     return lesson.availableSlot > 0;
+                    },
+
+                    // Remove one copy of a lesson from the cart
+                    removeFromCart(lesson) {
+                        const index = this.cart.indexOf(lesson.id); // finds the lesson in the cart.
+
+                        if (index !== -1) {
+                            this.cart.splice(index, 1); // removes one copy.
+                            lesson.availableSlot++; // restores availability.
+                        }
                     }
                 }
-            
             });
         afterSchoolLesson.mount('#app');
 </script>
