@@ -20,9 +20,31 @@
         <i class="fa fa-shopping-cart" aria-hidden="true"></i> 
          Checkout ({{ cart.length }})
     </button>
+
+    <!-- User input forms to allow the user to choose whether to order lessons by price, availability,
+    location or subject, and whether to display them in increasing order.-->
+    <div>
+        <label for="sortType">Sort lessons by:</label>
+
+        <select id="sortType" v-model="sortType">
+            <option value="price">Price</option> <!-- compares lesson prices numerically. -->
+            <option value="availability">Availability</option> <!-- compares available lesson spaces numerically. -->
+            <option value="location">Location</option> <!-- sorts locations alphabetically. -->
+            <option value="subject">Subject</option> <!-- sorts subjects alphabetically. -->
+        </select>
+
+        <br><br>
+
+        <label for="sortOrder">Sort order:</label>
+
+        <select id="sortOrder" v-model="sortOrder">
+            <option value="ascending">Increasing order</option>
+            <option value="descending">Decreasing order</option>
+        </select>
+    </div>
  
     <!-- Lesson information-->
-    <div v-for="lesson in lessons" :key="lesson.id">
+    <div v-for="lesson in sortedLessons" :key="lesson.id">
             
             <figure>
                 <img :src="lesson.image" width ="300" :alt="lesson.subject">
@@ -61,7 +83,7 @@
             <!-- Summary of lessons in the cart -->
             <h3>Lessons in Your Cart</h3>
 
-            <template v-for="lesson in lessons" :key="lesson.id">
+            <template v-for="lesson in sortedLessons" :key="lesson.id">
                 <div  v-if="cartLessonCount(lesson.id) > 0"> <!-- ensures that only lessons the cart are shown -->
             <p>
                 {{ lesson.subject }} -
@@ -91,6 +113,8 @@
                     sitename: "Vue.js After-School Lessons",
                     lessons: [], // intialises an empty array.
                     cart: [],
+                    sortType: "price", // lessons will be sorted by price by default.
+                    sortOrder: "ascending", // lessons are displayed from lowest to highest.
 
                     // Order item object
                     order: {
@@ -98,7 +122,7 @@
                         lastName:"",
                         phoneNumber: ""
                     }
-                };
+                }
             },
 
             // Call the fetchData method
@@ -119,6 +143,36 @@
                     return this.order.firstName.trim() !== "" &&
                     this.order.lastName.trim() !== "" &&
                     this.order.phoneNumber.trim() !== "";
+                },
+
+                // Return the information about the lessons
+                sortedLessons(){
+                    return [...this.lessons].sort((a, b) => {
+                        let result = 0;
+
+                        // Sort by price (numerically)
+                        if (this.sortType === "price") {
+                            result = a.price - b.price;
+                        }
+
+                        // Sort by availability (numerically)
+                        else if (this.sortType === "availability") {
+                            result = a.availableSlot - b.availableSlot;
+                        }
+
+                        // Sort by location (alphabetically)
+                        else if (this.sortType === "location") {
+                            result = a.location.localeCompare(b.location);
+                        }
+
+                        // Sort by subject (alphabetically)
+                        else if (this.sortType === "subject") {
+                            result = a.subject.localeCompare(b.subject);
+                        }
+
+                        // Increasing or decreasing order
+                        return this.sortOrder === "ascending" ? result : -result;
+                    }); 
                 }
             },
 
@@ -172,7 +226,7 @@
                         const url = "http://localhost:3000/";
                         let response = await (fetch (url));
                         this.lessons = await response.json();
-                    },
+                    }
                 }
             });
         afterSchoolLesson.mount('#app');
