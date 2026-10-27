@@ -12,17 +12,20 @@
 <body>
     
 <div id="app">
+
+    <!-- Lessons page -->
     <div v-if="showLesson">
+
         <h1 v-text = "sitename"></h1>
         
-        <!-- Checkout button displays the number of lessons in the cart. -->       
-    <button @click="toggleCheckout">
-        <i class="fa fa-shopping-cart" aria-hidden="true"></i> 
-         Checkout ({{ cart.length }})
+        <!-- Shopping Cart button: disabled when the cart is empty. -->       
+    <button @click="toggleCheckout" :disabled="cart.length === 0">
+        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+        Shopping Cart ({{ cart.length }})
     </button>
 
     <!-- User input forms to allow the user to choose whether to order lessons by price, availability,
-    location or subject, and whether to display them in increasing order.-->
+    location or subject, and whether to display them in increasing order. -->
     <div>
         <label for="sortType">Sort lessons by:</label>
 
@@ -140,9 +143,16 @@
 
                 // Order validation
                 isOrderValid() {
-                    return this.order.firstName.trim() !== "" &&
-                    this.order.lastName.trim() !== "" &&
-                    this.order.phoneNumber.trim() !== "";
+                    const firstNameValid =
+                    /^[A-Za-z]+$/.test(this.order.firstName.trim()); // allows only letters in the first name.
+
+                    const lastNameValid =
+                    /^[A-Za-z]+$/.test(this.order.lastName.trim()); // allows only letters in the last name.
+
+                    const phoneValid =
+                    /^[0-9]+$/.test(this.order.phoneNumber.trim()); // allows only numbers in the phone number.
+
+                    return firstNameValid && lastNameValid && phoneValid && this.cart.length > 0;
                 },
 
                 // Return the information about the lessons
@@ -184,17 +194,32 @@
                         lesson.availableSlot--;
                         }
                     },
-                    
+
+                    // Get lesson data from http://localhost:3000/lessons
+                    async fetchData(){
+                        const url = "http://localhost:3000/lessons";
+                        let response = await (fetch (url));
+                        this.lessons = await response.json();
+                    },
+
                     // Complete order
-                    submitOrder() {
-                        alert("Your order has been confirmed!");
+                    async submitOrder() {
+                        if (!this.isOrderValid) return;
                         
+                        // Send the order to the backend
+                        const success = await this.postOrder();
+
                         // Reset application after successful checkout
+                        if (success) {
+                            alert("Your order has been confirmed!");
+                        
+                        
                         this.cart = []; // clears all items from the cart.
                         this.order.firstName = "";
                         this.order.lastName = "";
                         this.order.phoneNumber = "";
                         this.showLesson = true;
+                        }
                     },
 
                     toggleCheckout() {
@@ -221,14 +246,46 @@
                         }
                     },
 
-                    // Populate the lessons data from the back-end server
-                    async fetchData(){
-                        const url = "http://localhost:3000/";
-                        let response = await (fetch (url));
-                        this.lessons = await response.json();
+                    // Transfer order information to the backend server
+                    async postOrder(){
+                        try {
+                            const url = "http://localhost:3000/orders";
+                        
+                            // Create the order data, including the selected lesson IDs
+                            const orderData = {
+                                firstName: this.order.firstName,
+                                lastName: this.order.lastName,
+                                phoneNumber: this.order.phoneNumber,
+                                lessonIDs: this.cart
+                            }
+
+                            const options = {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(orderData)
+                        }
+
+                        const response = await fetch (url, options);
+
+                        if (!response.ok) {
+                            throw new Error("Failed to submit order");
+                        }
+
+                        const result = await response.json();
+                        console.log(result.message);
+
+                        return true;
+
+                    } catch (error) {
+                        console.error("Error submitting order:", error);
+                        alert("Unable to submit your order. Please try again.");
+                        return false;
                     }
                 }
-            });
+            }
+        });
         afterSchoolLesson.mount('#app');
 </script>
 
