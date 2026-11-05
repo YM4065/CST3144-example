@@ -278,11 +278,29 @@
 
                         return true;
 
-                    } catch (error) {
-                        console.error("Error submitting order:", error);
-                        alert("Unable to submit your order. Please try again.");
-                        return false;
+                        } catch (error) {
+                            console.error("Error submitting order:", error);
+                            alert("Unable to submit your order. Please try again.");
+                            return false;
+                        }
+                    },
+
+                // PUT request example (Front-End)
+                async updateLesson(lesson){
+
+                    let updateBody = {
+                        availableSlot: 100
+                    };
+
+                    const url = AFTERSCHOOLLESSON_URL + "/lessons" + "/" + product._id;
+                    const options = {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updateBody)
                     }
+                    let response = await (fetch (url, options));
                 }
             }
         });
