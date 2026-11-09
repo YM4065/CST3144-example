@@ -197,9 +197,22 @@
 
                     // Get lesson data from http://localhost:3000/lessons
                     async fetchData(){
-                        const url = "http://localhost:3000/lessons";
-                        let response = await (fetch (url));
-                        this.lessons = await response.json();
+
+                        // Ensure the lessons are refreshed from the backend after checkout
+                        try {
+                            const url = "http://localhost:3000/lessons";
+                            
+                            const response = await (fetch (url));
+
+                            if (!response.ok) {
+                                throw new Error("Failed to fetch lessons");
+                            }
+                            
+                            this.lessons = await response.json();
+                        
+                        } catch (error) {
+                            console.error("Error fetching lessons:", error);
+                        }
                     },
 
                     // Complete order
@@ -209,16 +222,46 @@
                         // Send the order to the backend
                         const success = await this.postOrder();
 
-                        // Reset application after successful checkout
+                        // Progressing checkout
                         if (success) {
+                            
+                            // Update lessona availability in MongoDB
+                            for (const lessonId of this.cart) {
+
+                                const lesson = this.lessons.find(
+                                    item => item.id === lessonId
+                                );
+
+                                if (lesson) {
+                                    await fetch(
+                                        "http://localhost:3000/lessons/" + lesson._id,
+                                        {
+                                            method: "PUT",
+                                            headers: {
+                                                "Content-Type": "application/json"
+                                            },
+                                            body: JSON.stringify({
+                                                availableSlot: lesson.availableSlot
+                                            })
+                                        }
+                                    );
+                                }
+                            }
+                            
                             alert("Your order has been confirmed!");
                         
-                        
                         this.cart = []; // clears all items from the cart.
+                        
+                        // Reset customer contact details
                         this.order.firstName = "";
                         this.order.lastName = "";
                         this.order.phoneNumber = "";
+
+                        // Return to lessons page
                         this.showLesson = true;
+
+                        // Refresh lessons and their availability from database
+                        await this.fetchData();
                         }
                     },
 
@@ -285,14 +328,13 @@
                         }
                     },
 
-                // PUT request example (Front-End)
+                // Update information about a lesson
                 async updateLesson(lesson){
-
                     let updateBody = {
-                        availableSlot: 100
+                        availableSlot: 30
                     };
 
-                    const url = AFTERSCHOOLLESSON_URL + "/lessons" + "/" + product._id;
+                    const url = "http://localhost:3000/lessons/" + lesson._id;
                     const options = {
                         method: 'PUT',
                         headers: {
